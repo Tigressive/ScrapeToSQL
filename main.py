@@ -30,9 +30,10 @@ def connect_sql(bname, bkeyword, baddress, bcity, bstate, bzip, bwebsite, bphone
                        "%s, %s, %s, %s, %s, %s, %s )",
                        (bname, bkeyword, baddress, bcity, bstate, bzip, bwebsite, bphone,
                         bemail))
+        connection.commit()
     else:
         print("Entry Found")
-    connection.commit()
+
     connection.close()
 
 
@@ -41,11 +42,11 @@ def read_csv():
     if len(entries) > 0:
         with open(f'test/{entries[0]}') as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
+            next(csv_reader)
 
             for row in csv_reader:
                 if not row[11]:
-                    print("Nothing Here")
-                    break
+                    print("No Email")
                 else:
                     bname = row[2]
                     bkeyword = row[1]
@@ -58,17 +59,18 @@ def read_csv():
                     bemail = row[11]
 
                     connect_sql(bname, bkeyword, baddress, bcity, bstate, bzip, bwebsite, bphone, bemail)
-                    print(f"Successfully Imported {entries[0]} ")
 
-        os.replace(f'test/{entries[0]}', f'done/{entries[0]}_done')
+            print(f"Successfully Imported {entries[0]} ")
+            os.replace(f'test/{entries[0]}', f'done/{entries[0].replace(".csv", "_done.csv" )}')
 
     else:
         print("Empty - Time to start a new scrape!")
 
 
 if __name__ == '__main__':
-    schedule.every().day.at("2:00").do(read_csv)
-
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
+    read_csv()
+    # schedule.every().day.at("02:00").do(read_csv)
+    #
+    # while True:
+    #     schedule.run_pending()
+    #     time.sleep(1)
