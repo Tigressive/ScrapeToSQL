@@ -1,9 +1,13 @@
 # This is a sample Python script.
 
+import csv
 # Press ⌃R to execute it or replace it with your code.
 # Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
+import os
+import time
+
 import pymysql
-import csv
+import schedule as schedule
 
 
 def connect_sql(bname, bkeyword, baddress, bcity, bstate, bzip, bwebsite, bphone, bemail):
@@ -15,39 +19,56 @@ def connect_sql(bname, bkeyword, baddress, bcity, bstate, bzip, bwebsite, bphone
 
     connection.begin()
     cursor = connection.cursor()
+    cursor.execute(f"SELECT * FROM business WHERE (business_name) = %s", bname)
+    entry = cursor.fetchone()
 
-    cursor.execute("INSERT INTO business (business_name, business_keyword, business_address, business_city, "
-                   "business_state, business_zip, business_website, business_phone, business_email) VALUES (%s, %s, "
-                   "%s, %s, %s, %s, %s, %s, %s )", (bname, bkeyword, baddress, bcity, bstate, bzip, bwebsite, bphone,
-                                                    bemail))
+    if entry is None:
+        cursor.execute("INSERT INTO business (business_name, business_keyword, business_address, "
+                       "business_city, "
+                       "business_state, business_zip, business_website, business_phone, business_email) VALUES (%s, "
+                       "%s, "
+                       "%s, %s, %s, %s, %s, %s, %s )",
+                       (bname, bkeyword, baddress, bcity, bstate, bzip, bwebsite, bphone,
+                        bemail))
+    else:
+        print("Entry Found")
     connection.commit()
-    rows = cursor.fetchall()
-    for row in rows:
-        print(row)
     connection.close()
 
 
 def read_csv():
-    with open('Arizona Furniture stores.csv') as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=',')
-        next(csv_reader)
+    entries = os.listdir('test/')
+    if len(entries) > 0:
+        with open(f'test/{entries[0]}') as csv_file:
+            csv_reader = csv.reader(csv_file, delimiter=',')
 
-        for row in csv_reader:
-            if row[11] is "":
-                next(csv_reader)
-            else:
-                bname = row[2]
-                bkeyword = row[1]
-                baddress = row[3]
-                bcity = row[5]
-                bstate = row[6]
-                bzip = row[7]
-                bwebsite = row[9]
-                bphone = row[10]
-                bemail = row[11]
+            for row in csv_reader:
+                if not row[11]:
+                    print("Nothing Here")
+                    break
+                else:
+                    bname = row[2]
+                    bkeyword = row[1]
+                    baddress = row[3]
+                    bcity = row[5]
+                    bstate = row[6]
+                    bzip = row[7]
+                    bwebsite = row[9]
+                    bphone = row[10]
+                    bemail = row[11]
 
-                connect_sql(bname, bkeyword, baddress, bcity, bstate, bzip, bwebsite, bphone, bemail)
+                    connect_sql(bname, bkeyword, baddress, bcity, bstate, bzip, bwebsite, bphone, bemail)
+                    print(f"Successfully Imported {entries[0]} ")
+
+        os.replace(f'test/{entries[0]}', f'done/{entries[0]}_done')
+
+    else:
+        print("Empty - Time to start a new scrape!")
 
 
 if __name__ == '__main__':
-    read_csv()
+    schedule.every().day.at("2:00").do(read_csv)
+
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
