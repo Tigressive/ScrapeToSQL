@@ -69,8 +69,8 @@ def read_csv():
 
 if __name__ == '__main__':
     read_csv()
-    # schedule.every().day.at("02:00").do(read_csv)
-    #
-    # while True:
-    #     schedule.run_pending()
-    #     time.sleep(1)
+    schedule.every().day.at("02:00").do(read_csv)
+
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
