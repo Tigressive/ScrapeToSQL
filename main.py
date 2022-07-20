@@ -47,7 +47,7 @@ def read_csv():
 
                 for row in csv_reader:
                     if not row[11]:
-                        print("No Email")
+                        print("No Email - Skipping")
                     else:
                         bname = row[2]
                         bkeyword = row[1]
@@ -61,8 +61,8 @@ def read_csv():
 
                         connect_sql(bname, bkeyword, baddress, bcity, bstate, bzip, bwebsite, bphone, bemail)
 
-            print(f"Successfully Imported {files} ")
-            os.replace(f'test/{files}', f'done/{files.replace(".csv", "_done.csv" )}')
+                print(f"Successfully Imported {files}")
+                os.replace(f'test/{files}', f'done/{files.replace(".csv", "_done.csv" )}')
         else:
             print("Empty - Time to start a new scrape!")
 
