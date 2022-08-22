@@ -51,7 +51,6 @@ def read_csv(start, done):
                         bcity = row[5]
                         bstate = row[6]
                         bzip = row[7]
-
                         bwebsite = row[9]
                         bphone = row[10]
                         singleEmail = row[11].split(',')
