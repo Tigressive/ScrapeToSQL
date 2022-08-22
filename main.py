@@ -32,12 +32,13 @@ def connect_sql(bname, bkeyword, baddress, bcity, bstate, bzip, bwebsite, bphone
     connection.close()
 
 
-def read_csv():
+def read_csv(start, done):
     entries = os.listdir('test/')
     for files in entries:
         if len(entries) > 0:
-            with open(f'test/{files}') as csv_file:
+            with open(f'{start}/{files}') as csv_file:
                 csv_reader = csv.reader(csv_file, delimiter=',')
+                next(csv_reader)
                 next(csv_reader)
 
                 for row in csv_reader:
@@ -50,20 +51,26 @@ def read_csv():
                         bcity = row[5]
                         bstate = row[6]
                         bzip = row[7]
+
                         bwebsite = row[9]
                         bphone = row[10]
-                        bemail = row[11]
+                        singleEmail = row[11].split(',')
+                        bemail = singleEmail[0]
 
                         connect_sql(bname, bkeyword, baddress, bcity, bstate, bzip, bwebsite, bphone, bemail)
 
                 print(f"Successfully Imported {files}")
-                os.replace(f'test/{files}', f'done/{files.replace(".csv", "_done.csv" )}')
+                print("Next Import will run at 2:00 PM!")
+                os.replace(f'{start}/{files}', f'{done}/{files.replace(".csv", "_done.csv")}')
         else:
             print("Empty - Time to start a new scrape!")
 
 
 if __name__ == '__main__':
-    read_csv()
+    start = input("Enter the starting directory")
+    done = input("Enter the directory for the finished files")
+    print()
+    read_csv(start, done)
     schedule.every().day.at("02:00").do(read_csv)
 
     while True:
